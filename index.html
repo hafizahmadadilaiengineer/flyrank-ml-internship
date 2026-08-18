@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Refresh Opportunity Scoring — an applied ML research paper for prioritizing search-content review.">
+  <title>Refresh Opportunity Scoring | FlyRank ML Internship</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top">AI FORGE <span>/ Research</span></a>
+  <nav>
+    <a href="#abstract">Abstract</a>
+    <a href="#method">Method</a>
+    <a href="#results">Results</a>
+    <a href="#recommendations">Recommendations</a>
+    <a href="#repro">Reproducibility</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="eyebrow">FLYRANK ML INTERNSHIP · CAPSTONE · SEARCH INTELLIGENCE</div>
+    <h1>Refresh Opportunity<br><em>Scoring</em></h1>
+    <p class="dek">A decision-support approach for prioritizing search-content review when editorial capacity is limited.</p>
+    <div class="hero-meta">
+      <span>30,000 anonymized content pages</span>
+      <span>32 clients</span>
+      <span>Client-grouped evaluation</span>
+    </div>
+    <div class="hero-actions">
+      <a class="button primary" href="#results">Read the findings ↓</a>
+      <a class="button" href="https://github.com/hafizahmadadilaiengineer/flyrank-ml-internship">View repository ↗</a>
+    </div>
+  </section>
+
+  <section class="finding-strip">
+    <div><span>TOP-50 PRECISION</span><strong>0.72</strong><small>Week-4 baseline</small></div>
+    <div><span>RANDOM FOREST</span><strong>0.46</strong><small>Precision@50</small></div>
+    <div><span>TEST CLIENTS</span><strong>7</strong><small>0 overlap with train</small></div>
+    <div><span>TEST ROWS</span><strong>3,419</strong><small>client-grouped holdout</small></div>
+  </section>
+
+  <section class="section narrow" id="abstract">
+    <div class="section-label">01 · ABSTRACT</div>
+    <h2>The short version</h2>
+    <div class="abstract-box">
+      <p><b>Question:</b> Which content pages should a content team review first when review capacity is limited?</p>
+      <p><b>Method:</b> I framed the problem as a ranking and decision-support task and compared a transparent Week-4 baseline with Logistic Regression, Decision Tree, and Random Forest models.</p>
+      <p><b>Validation:</b> The models were evaluated with a client-grouped split, and label-derived trend fields were excluded from the predictive feature set to reduce leakage risk.</p>
+      <p><b>Result:</b> The Week-4 baseline measured <b>0.72 Precision@50</b>, while Random Forest measured <b>0.46 Precision@50</b> on the same top-50 decision.</p>
+      <p><b>Conclusion:</b> For this specific review-prioritization decision, the simpler baseline produced the strongest measured top-50 precision, so the final playbook emphasizes transparent reason codes and human review rather than automatic intervention.</p>
+    </div>
+  </section>
+
+  <section class="section split" id="problem">
+    <div class="section-label">02 · INTRODUCTION</div>
+    <div>
+      <h2>The decision matters more than the model.</h2>
+      <p>Content teams cannot review every page with equal attention. The practical problem is therefore not simply predicting whether a page is declining, but deciding which pages deserve review first.</p>
+      <p>This project frames content refresh prioritization as a decision-support problem. The output is a ranked queue containing a score, reason code, and suggested action.</p>
+      <p class="callout">The system is designed to help a human reviewer allocate limited editorial time. It does not automatically determine that a page should be refreshed, and it does not claim to predict Google's ranking algorithm.</p>
+    </div>
+  </section>
+
+  <section class="section" id="data">
+    <div class="section-label">03 · DATA</div>
+    <h2>What was measured</h2>
+    <div class="cards">
+      <article><b>30,000</b><span>rows</span></article>
+      <article><b>44</b><span>columns</span></article>
+      <article><b>32</b><span>clients</span></article>
+      <article><b>30,000</b><span>content pages</span></article>
+    </div>
+    <div class="grid-2">
+      <div>
+        <h3>Unit of analysis</h3>
+        <p>One row represents one pseudonymized content page. The dataset contains search, visibility, engagement, content-age and freshness signals.</p>
+      </div>
+      <div>
+        <h3>Windows</h3>
+        <p>Trailing 90-day measurements are accompanied by last-30-day and previous-30-day fields, allowing observed movement and review signals to be compared across windows.</p>
+      </div>
+    </div>
+    <div class="note">
+      <b>Public-safe scope.</b> No client names, domains, URLs, private queries, titles, raw text, credentials, or private client exports are exposed in this paper. The measured results reported here use the anonymized starter release; this paper does not claim that the capstone independently analyzed the full warehouse release.
+    </div>
+  </section>
+
+  <section class="section" id="method">
+    <div class="section-label">04 · METHODOLOGY</div>
+    <h2>Simple, grouped, leakage-aware.</h2>
+    <div class="method-grid">
+      <div><span>01</span><h3>Task</h3><p>Refresh / Content Opportunity Scoring. Operational goal: prioritize pages for human review.</p></div>
+      <div><span>02</span><h3>Proxy label</h3><p><code>is_declining_label</code>, derived from the available trend signal. It is not a clean future-window outcome.</p></div>
+      <div><span>03</span><h3>Models</h3><p>Transparent baseline, Logistic Regression, Decision Tree, and Random Forest.</p></div>
+      <div><span>04</span><h3>Validation</h3><p>25 clients in training, 7 in test, 0 client overlap; 3,419 test rows.</p></div>
+      <div><span>05</span><h3>Metric</h3><p>Precision@50 is the main operational metric because the team has limited review capacity.</p></div>
+      <div><span>06</span><h3>Leakage</h3><p><code>trend_direction</code> and <code>trend_pct</code> were excluded because the label is derived from the trend signal.</p></div>
+    </div>
+    <div class="callout">Complexity was not treated as a goal. A method had to improve the decision evidence to justify replacing a transparent baseline.</div>
+  </section>
+
+  <section class="section" id="results">
+    <div class="section-label">05 · RESULTS</div>
+    <h2>The baseline won the top-50 decision.</h2>
+    <p class="lead">On the same client-grouped evaluation, the transparent Week-4 rule achieved the strongest Precision@50.</p>
+    <div class="result-grid">
+      <div class="chart-card">
+        <div class="chart-title">Precision@50</div>
+        <div class="bars">
+          <div class="bar-row"><label>Baseline</label><div><i style="width:100%"></i></div><b>0.72</b></div>
+          <div class="bar-row"><label>Logistic</label><div><i style="width:86.1%"></i></div><b>0.62</b></div>
+          <div class="bar-row"><label>Random Forest</label><div><i style="width:63.9%"></i></div><b>0.46</b></div>
+          <div class="bar-row"><label>Decision Tree</label><div><i style="width:58.3%"></i></div><b>0.42</b></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Method</th><th>Precision@50</th><th>Average Precision</th></tr></thead>
+          <tbody>
+            <tr class="winner"><td>Week-4 Baseline</td><td>0.72</td><td>0.571718</td></tr>
+            <tr><td>Logistic Regression</td><td>0.62</td><td>0.599466</td></tr>
+            <tr><td>Random Forest</td><td>0.46</td><td>0.639209</td></tr>
+            <tr><td>Decision Tree</td><td>0.42</td><td>0.610575</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="interpretation"><b>Interpretation.</b> Random Forest had the highest Average Precision among the tested models, but the baseline had substantially higher Precision@50. Because the practical decision is to prioritize a limited top portion of the queue, the baseline was retained for the final action playbook.</p>
+  </section>
+
+  <section class="section" id="errors">
+    <div class="section-label">06 · FAILURE ANALYSIS</div>
+    <h2>Where the model gets it wrong.</h2>
+    <div class="error-grid">
+      <div class="error-card">
+        <span class="tag fp">FALSE POSITIVE</span>
+        <h3>High score, non-declining proxy</h3>
+        <code>content_8f1409b2674e</code>
+        <p>Label 0 · score 0.864 · 209 impressions · CTR 0.00 · average position 20.0</p>
+        <small>A high model score can still prioritize a page that does not match the observed declining proxy.</small>
+      </div>
+      <div class="error-card">
+        <span class="tag fn">FALSE NEGATIVE</span>
+        <h3>Low score, declining proxy</h3>
+        <code>content_9fd1fb307b32</code>
+        <p>Label 1 · score 0.381 · 65,555 impressions · CTR 0.31 · average position 7.7</p>
+        <small>Some declining-proxy pages have substantial visibility, so visibility alone does not separate every case.</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="recommendations">
+    <div class="section-label">07 · RANKED RECOMMENDATIONS</div>
+    <h2>A queue for people, not robots.</h2>
+    <div class="rec-list">
+      <article><div class="num">01</div><div><h3>Low CTR visible pages</h3><p><code>low_ctr_visible_page</code></p><p>Review visibility, CTR, search intent and SERP context. Use “Review Soon” or “Refresh candidate” only when the human check supports it.</p></div></article>
+      <article><div class="num">02</div><div><h3>Stale visible pages</h3><p><code>stale_visible_page</code></p><p>Consider refresh when the content is genuinely outdated and other evidence supports intervention. Update age alone is not enough.</p></div></article>
+      <article><div class="num">03</div><div><h3>General review</h3><p><code>general_review</code></p><p>Monitor or investigate when evidence is insufficient for a stronger intervention.</p></div></article>
+    </div>
+    <div class="stats-line">
+      <span><b>17,756</b> low-CTR visible pages</span>
+      <span><b>12,237</b> general-review pages</span>
+      <span><b>7</b> stale-visible pages</span>
+      <span><b>102</b> refresh candidates</span>
+    </div>
+    <h3 class="subhead">Human review before action</h3>
+    <div class="review-grid">
+      <div>✓ Check whether the content is actually outdated.</div>
+      <div>✓ Check search intent and current SERP context.</div>
+      <div>✓ Check content quality and business relevance.</div>
+      <div>✓ Record disagreement between the queue and reviewer judgment.</div>
+    </div>
+    <div class="danger">
+      <b>Do not automate:</b> publishing, deletion/pruning, URL changes, canonical changes, merging pages, changing search intent, declaring recovery, or claiming a Google ranking-factor explanation.
+    </div>
+  </section>
+
+  <section class="section" id="decay">
+    <div class="section-label">08 · DECAY / REFRESH SIGNAL</div>
+    <h2>Age is a clue, not a trigger.</h2>
+    <p>The earlier signal audit showed observed mean trend values of approximately <b>-4.78</b> for pages updated within 0–180 days, <b>-4.72</b> for 181–365 days, and <b>-96.17</b> for 366–730 days.</p>
+    <p class="note"><b>Important caveat:</b> the 366–730-day bucket contained only 5 pages. The large negative value is therefore directional, not strong evidence of a general content-decay effect.</p>
+    <p>Practical rule: use update age alongside visibility and engagement signals when prioritizing review; never let age alone trigger an automatic refresh.</p>
+  </section>
+
+  <section class="section" id="limits">
+    <div class="section-label">09 · LIMITATIONS & HONEST FRAMING</div>
+    <h2>What this study does not prove.</h2>
+    <ul class="limits">
+      <li>The declining label is a proxy derived from an existing trend field, not a separate future outcome.</li>
+      <li>The study is observational and does not establish that refreshing content causes recovery.</li>
+      <li>The baseline winning Precision@50 does not mean it is universally superior to ML models.</li>
+      <li>The experiment does not explain or prove Google's ranking algorithm.</li>
+      <li>The available data cannot capture every editorial, business, or content-quality consideration.</li>
+      <li>The queue is decision support and requires human review.</li>
+    </ul>
+  </section>
+
+  <section class="section" id="repro">
+    <div class="section-label">10 · REPRODUCIBILITY</div>
+    <h2>Follow the evidence trail.</h2>
+    <div class="repo-box">
+      <div><span>Repository</span><a href="https://github.com/hafizahmadadilaiengineer/flyrank-ml-internship">github.com/hafizahmadadilaiengineer/flyrank-ml-internship ↗</a></div>
+      <div><span>Capstone notebook</span><code>work/notebooks/capstone.ipynb</code></div>
+      <div><span>Action playbook</span><code>work/notebooks/w07_action_playbook.ipynb</code></div>
+      <div><span>Paper figure</span><code>work/figures/precision_at_50_comparison.png</code></div>
+      <div><span>Generated queue</span><code>work/outputs/action_playbook_queue.csv</code></div>
+    </div>
+    <p class="small">The queue CSV is regenerated by the notebook and is intentionally not treated as a source-controlled dataset. The notebooks and committed metrics/figures provide the reproducibility trail.</p>
+  </section>
+
+  <footer>
+    <div class="footer-title">Built on the FlyRank ML Internship dataset.</div>
+    <p>Applied Search Intelligence · Refresh Opportunity Scoring</p>
+    <p><a href="https://flyrank.ai">FlyRank ↗</a></p>
+    <p class="credit">Research artifact · Decision-support framing · Public-safe analysis</p>
+  </footer>
+</main>
+</body>
+</html>
